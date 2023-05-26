@@ -310,6 +310,100 @@ plt.show()
 
 # In[69]:
 
+#h Build and perform transfer learning on a CNN with the Autoencoder
+
+cnn1 = autoencoder_oscar(inputs_oscar)
+cnn2 = e_oscar
+cnn3 = Flatten()(autoencoder_oscar.layers[-1].output)
+cnn4 = Dense(100, activation='relu')(cnn3)
+output = Dense(10, activation='softmax')(cnn4)
+
+cnn_v2_oscar= Model(inputs=autoencoder_oscar.inputs, outputs=output)
+
+
+# In[70]:
+
+
+cnn_v2_oscar.compile(loss="categorical_crossentropy", optimizer="adam", metrics=["accuracy"])
+
+
+# In[71]:
+
+
+cnn_v2_oscar.summary()
+
+
+# In[72]:
+
+
+cnn_v2_history_oscar= cnn_v2_oscar.fit(x_train_oscar, y_train_oscar,
+          batch_size=256,
+          epochs=10,
+          verbose=1,
+          validation_data=(x_val_oscar, y_val_oscar))
+
+
+# In[74]:
+
+
+#i Test and analyze the pretrained CNN model
+
+loss_train1 = cnn_v2_history_oscar.history['accuracy']
+loss_val1 = cnn_v2_history_oscar.history['val_accuracy']
+epochs = range(1,11)
+plt.plot(epochs, loss_train1, 'y', label='Training accuracy')
+plt.plot(epochs, loss_val1, 'r', label='Validation accuracy')
+plt.title('Training and Validation accuracy')
+plt.xlabel('Epochs')
+plt.ylabel('Accuracy')
+plt.legend()
+plt.show()
+
+
+# In[75]:
+
+
+test_loss1, test_acc1 = cnn_v2_oscar.evaluate(x_test_oscar, y_test_oscar, verbose=2)
+print("Test accuracy:", test_acc1)
+
+
+# In[81]:
+
+
+val_loss1, val_acc1 = cnn_v2_oscar.evaluate(x_val_oscar, y_val_oscar, verbose=2)
+print("Validation accuracy:", val_acc1)
+
+
+# In[76]:
+
+
+cnn_predictions1_oscar = cnn_v2_oscar.predict(x_test_oscar)
+
+
+# In[77]:
+
+
+plot_confusion_matrix(y_test_oscar, cnn_predictions1_oscar, labels) 
+
+
+# In[78]:
+
+
+#j Compare the performance of the baseline CNN model to the pretrained model in your report
+
+loss_valcnn = cnn_v1_history_oscar.history['val_accuracy']
+loss_valpre = cnn_v2_history_oscar.history['val_accuracy']
+epochs = range(1,11)
+plt.plot(epochs, loss_valcnn, 'b', label='Validation accuracy Baseline')
+plt.plot(epochs, loss_valpre, 'y', label='Validation accuracy Pretrained')
+plt.title('Validation accuracies')
+plt.xlabel('Epochs')
+plt.ylabel('Accuracy')
+plt.legend()
+plt.show()
+
+
+# In[ ]:
 
 
 
